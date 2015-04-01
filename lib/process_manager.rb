@@ -1,5 +1,5 @@
 require "process_manager/version"
+require "process_manager/children_monitor"
 
 module ProcessManager
-  # Your code goes here...
 end
