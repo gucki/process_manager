@@ -49,13 +49,21 @@ class ProcessManager::ChildrenMonitor
   end
 
   def process_memory_usage(pid)
-    %x{ps -p #{pid} -orss -h}.strip.to_i / 1024
+    File.read("/proc/#{pid}/statm").split(/\s+/)[1].to_i * 4096 / 1024 / 1024
   end
 
   def children_pids
     ppid = parent_pid
     return [] unless ppid
-    %x{ps --ppid #{parent_pid} -opid h}.split("\n").map{ |pid| pid.strip.to_i }
+    [].tap do |list|
+      Dir["/proc/*/stat"].each do |path|
+        data = File.read(path) rescue
+        next unless data
+        data = data.split(/\s+/)
+        next unless data[3].to_i == ppid
+        list << data[0].to_i
+      end
+    end
   end
 
   def gracefully_kill_child(pid)
