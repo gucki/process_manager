@@ -15,7 +15,9 @@ class ProcessManager::ChildrenMonitor
 
   def initialize(options = {})
     @options = options
-    options[:logger] ||= Logger.new(STDOUT)
+    options[:logger] ||= Logger.new(STDOUT).tap do |logger|
+      logger.level = Logger::INFO
+    end
   end
 
   def run
